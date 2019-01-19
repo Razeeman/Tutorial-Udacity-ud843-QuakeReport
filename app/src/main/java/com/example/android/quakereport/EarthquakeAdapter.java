@@ -15,6 +15,8 @@ import java.util.ArrayList;
  */
 public class EarthquakeAdapter extends ArrayAdapter<Earthquake> {
 
+    private static final String LOG_TAG = EarthquakeAdapter.class.getSimpleName();
+
     /**
      * Custom constructor.
      * The context is used to inflate the layout file, and the list is the data we want
@@ -37,23 +39,35 @@ public class EarthquakeAdapter extends ArrayAdapter<Earthquake> {
      */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+        ViewHolder viewHolder;
+
         // if recycled view is already inflated, its elements can be reused
         // otherwise inflating on every scroll would be too expensive
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.earthquake_list_item, parent, false);
+
+            viewHolder = new ViewHolder();
+            viewHolder.magnitudeTextView = convertView.findViewById(R.id.magnitude);
+            viewHolder.locationTextView = convertView.findViewById(R.id.location);
+            viewHolder.dateTextView = convertView.findViewById(R.id.date);
+
+            convertView.setTag(viewHolder);
+        } else {
+            viewHolder = (ViewHolder) convertView.getTag();
         }
 
         Earthquake earthquake = getItem(position);
 
-        TextView magnitudeTextView = convertView.findViewById(R.id.magnitude);
-        magnitudeTextView.setText(String.valueOf(earthquake.getMagnitude()));
-
-        TextView locationTextView = convertView.findViewById(R.id.location);
-        locationTextView.setText(earthquake.getLocation());
-
-        TextView dateTextView = convertView.findViewById(R.id.date);
-        dateTextView.setText(earthquake.getDate());
+        viewHolder.magnitudeTextView.setText(String.valueOf(earthquake.getMagnitude()));
+        viewHolder.locationTextView.setText(earthquake.getLocation());
+        viewHolder.dateTextView.setText(earthquake.getDate());
 
         return convertView;
+    }
+
+    static class ViewHolder {
+        TextView magnitudeTextView;
+        TextView locationTextView;
+        TextView dateTextView;
     }
 }
