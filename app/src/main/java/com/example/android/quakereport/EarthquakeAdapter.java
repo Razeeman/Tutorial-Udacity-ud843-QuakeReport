@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -65,7 +66,8 @@ public class EarthquakeAdapter extends ArrayAdapter<Earthquake> {
 
         Earthquake earthquake = getItem(position);
 
-        viewHolder.magnitudeTextView.setText(String.valueOf(earthquake.getMagnitude()));
+        String formattedMagnitude = formatMagnitude(earthquake.getMagnitude());
+        viewHolder.magnitudeTextView.setText(formattedMagnitude);
 
         String fullLocation = earthquake.getLocation();
         String locationOffset;
@@ -87,10 +89,10 @@ public class EarthquakeAdapter extends ArrayAdapter<Earthquake> {
 
         Date date = new Date(earthquake.getTime());
 
-        String formattedDate = formattedDate(date);
+        String formattedDate = formatDate(date);
         viewHolder.dateTextView.setText(formattedDate);
 
-        String formattedTime = formattedTime(date);
+        String formattedTime = formatTime(date);
         viewHolder.timeTextView.setText(formattedTime);
 
         return convertView;
@@ -99,7 +101,7 @@ public class EarthquakeAdapter extends ArrayAdapter<Earthquake> {
     /**
      * Return the formatted date string (i.e. "Jan 01, 1990").
      */
-    private String formattedDate(Date date) {
+    private String formatDate(Date date) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("LLL dd, yyyy", Locale.US);
         return dateFormat.format(date);
     }
@@ -107,9 +109,17 @@ public class EarthquakeAdapter extends ArrayAdapter<Earthquake> {
     /**
      * Return the formatted date string (i.e. "4:30 PM").
      */
-    private String formattedTime(Date date) {
+    private String formatTime(Date date) {
         SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a", Locale.US);
         return timeFormat.format(date);
+    }
+
+    /**
+     * Return the formatted magnitude string in the form of "99.9" (one decimal)
+     */
+    private String formatMagnitude(double magnitude) {
+        DecimalFormat decimalFormat = new DecimalFormat("0.0");
+        return decimalFormat.format(magnitude);
     }
 
     static class ViewHolder {
