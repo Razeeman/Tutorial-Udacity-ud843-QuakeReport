@@ -14,7 +14,14 @@
         tools:text="9.9"/>
 
     <TextView
-        android:id="@+id/location"
+        android:id="@+id/location_offset"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        tools:text="99km N of"/>
+
+    <TextView
+        android:id="@+id/location_primary"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"

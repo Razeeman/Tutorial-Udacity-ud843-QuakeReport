@@ -19,6 +19,7 @@ import java.util.Locale;
 public class EarthquakeAdapter extends ArrayAdapter<Earthquake> {
 
     private static final String LOG_TAG = EarthquakeAdapter.class.getSimpleName();
+    private static final String LOCATION_SEPARATOR = " of ";
 
     /**
      * Custom constructor.
@@ -47,11 +48,13 @@ public class EarthquakeAdapter extends ArrayAdapter<Earthquake> {
         // if recycled view is already inflated, its elements can be reused
         // otherwise inflating on every scroll would be too expensive
         if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.earthquake_list_item, parent, false);
+            convertView = LayoutInflater.from(getContext())
+                    .inflate(R.layout.earthquake_list_item, parent, false);
 
             viewHolder = new ViewHolder();
             viewHolder.magnitudeTextView = convertView.findViewById(R.id.magnitude);
-            viewHolder.locationTextView = convertView.findViewById(R.id.location);
+            viewHolder.locationOffsetTextView = convertView.findViewById(R.id.location_offset);
+            viewHolder.locationPrimaryTextView = convertView.findViewById(R.id.location_primary);
             viewHolder.dateTextView = convertView.findViewById(R.id.date);
             viewHolder.timeTextView = convertView.findViewById(R.id.time);
 
@@ -63,7 +66,24 @@ public class EarthquakeAdapter extends ArrayAdapter<Earthquake> {
         Earthquake earthquake = getItem(position);
 
         viewHolder.magnitudeTextView.setText(String.valueOf(earthquake.getMagnitude()));
-        viewHolder.locationTextView.setText(earthquake.getLocation());
+
+        String fullLocation = earthquake.getLocation();
+        String locationOffset;
+        String locationPrimary;
+
+        // splitting string in the form of "99km N of Temp Location"
+        // into "99km N of" and "Temp Location"
+        if (fullLocation.contains(LOCATION_SEPARATOR)) {
+            locationPrimary = fullLocation.split(LOCATION_SEPARATOR)[1];
+            locationOffset = fullLocation.substring(0, fullLocation.length() - locationPrimary.length());
+        } else {
+            // if no precise distance found, it is replaced with default string "Near the"
+            locationOffset = getContext().getString(R.string.near_the);
+            locationPrimary = fullLocation;
+        }
+
+        viewHolder.locationOffsetTextView.setText(locationOffset);
+        viewHolder.locationPrimaryTextView.setText(locationPrimary);
 
         Date date = new Date(earthquake.getTime());
 
@@ -94,7 +114,8 @@ public class EarthquakeAdapter extends ArrayAdapter<Earthquake> {
 
     static class ViewHolder {
         TextView magnitudeTextView;
-        TextView locationTextView;
+        TextView locationOffsetTextView;
+        TextView locationPrimaryTextView;
         TextView dateTextView;
         TextView timeTextView;
     }
