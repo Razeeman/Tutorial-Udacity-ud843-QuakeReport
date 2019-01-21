@@ -55,7 +55,7 @@ public final class QueryUtils {
 
                 Double mag = properties.optDouble("mag");
                 String place = properties.optString("place");
-                String date = properties.optString("time");
+                long date = properties.optLong("time");
 
                 Earthquake earthquake = new Earthquake(mag, place, date);
                 earthquakes.add(earthquake);
