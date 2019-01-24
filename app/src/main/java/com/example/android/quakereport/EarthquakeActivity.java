@@ -17,6 +17,7 @@ package com.example.android.quakereport;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -24,36 +25,72 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class EarthquakeActivity extends AppCompatActivity {
 
     public static final String LOG_TAG = EarthquakeActivity.class.getName();
+
+    public static final String REQUEST_URL =
+            "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&eventtype=earthquake&orderby=time&minmag=6&limit=10";
+
+    // reference to adapter to avoid several calls to findViewById
+    private EarthquakeAdapter mEarthquakeAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.earthquake_activity);
 
-        // Query a list of earthquake occurrences.
-        ArrayList<Earthquake> earthquakes = QueryUtils.extractEarthquakes();
-        earthquakes.addAll(new ArrayList<>(earthquakes));
-        earthquakes.addAll(new ArrayList<>(earthquakes));
-        earthquakes.addAll(new ArrayList<>(earthquakes));
-        earthquakes.addAll(new ArrayList<>(earthquakes));
-
         ListView earthquakeListView = findViewById(R.id.list);
-        final EarthquakeAdapter adapter = new EarthquakeAdapter(this, earthquakes);
-        earthquakeListView.setAdapter(adapter);
+        mEarthquakeAdapter = new EarthquakeAdapter(this, new ArrayList<Earthquake>());
+        earthquakeListView.setAdapter(mEarthquakeAdapter);
+
+        // create an AsyncTask to perform network request to given URL on background thread and
+        // update UI on the main thread.
+        EarthquakeAsyncTask earthquakeAsyncTask = new EarthquakeAsyncTask();
+        earthquakeAsyncTask.execute(REQUEST_URL);
 
         // set clickListener on ListView Item to start intent to open web page with particular url
         earthquakeListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Earthquake earthquake = adapter.getItem(position);
+                Earthquake earthquake = mEarthquakeAdapter.getItem(position);
                 Uri uri = Uri.parse(earthquake.getUrl());
                 Intent intent = new Intent(Intent.ACTION_VIEW, uri);
                 startActivity(intent);
             }
         });
+    }
+
+    /**
+     * Update the UI.
+     */
+    private void updateUI(List<Earthquake> earthquakes) {
+        if (earthquakes != null && !earthquakes.isEmpty()) {
+            mEarthquakeAdapter.clear();
+            mEarthquakeAdapter.addAll(earthquakes);
+        }
+    }
+
+    /**
+     * AsyncTask to perform a network request on a background thread and update the UI.
+     */
+    private class EarthquakeAsyncTask extends AsyncTask<String, Void, List<Earthquake>> {
+
+        @Override
+        protected List<Earthquake> doInBackground(String... url) {
+            if (url == null) return null;
+
+            // Query and return a list of earthquake occurrences.
+            return QueryUtils.fetchEarthquakesData(REQUEST_URL);
+        }
+
+        @Override
+        protected void onPostExecute(List<Earthquake> earthquakes) {
+            if (earthquakes == null) return;
+
+            updateUI(earthquakes);
+        }
     }
 }

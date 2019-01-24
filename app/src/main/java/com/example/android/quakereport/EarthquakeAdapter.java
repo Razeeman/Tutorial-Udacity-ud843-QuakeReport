@@ -11,8 +11,8 @@ import android.widget.TextView;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -22,6 +22,7 @@ import java.util.Locale;
 public class EarthquakeAdapter extends ArrayAdapter<Earthquake> {
 
     private static final String LOG_TAG = EarthquakeAdapter.class.getSimpleName();
+
     private static final String LOCATION_SEPARATOR = " of ";
 
     /**
@@ -32,7 +33,7 @@ public class EarthquakeAdapter extends ArrayAdapter<Earthquake> {
      * @param context     The current context. Used to inflate the layout file.
      * @param earthquakes A List of Earthquake objects to display in a list
      */
-    public EarthquakeAdapter(Context context, ArrayList<Earthquake> earthquakes) {
+    public EarthquakeAdapter(Context context, List<Earthquake> earthquakes) {
         super(context, 0, earthquakes);
     }
 
