@@ -17,23 +17,31 @@ package com.example.android.quakereport;
 
 import android.content.Intent;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EarthquakeActivity extends AppCompatActivity {
+public class EarthquakeActivity extends AppCompatActivity
+        implements LoaderCallbacks<List<Earthquake>> {
 
+    @SuppressWarnings("unused")
     public static final String LOG_TAG = EarthquakeActivity.class.getName();
 
+    // url to request earthquake data from USGS site
     public static final String REQUEST_URL =
             "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&eventtype=earthquake&orderby=time&minmag=6&limit=10";
+
+    // unique loader id
+    private static final int LOADER_ID = 0;
 
     // reference to adapter to avoid several calls to findViewById
     private EarthquakeAdapter mEarthquakeAdapter;
@@ -47,10 +55,9 @@ public class EarthquakeActivity extends AppCompatActivity {
         mEarthquakeAdapter = new EarthquakeAdapter(this, new ArrayList<Earthquake>());
         earthquakeListView.setAdapter(mEarthquakeAdapter);
 
-        // create an AsyncTask to perform network request to given URL on background thread and
-        // update UI on the main thread.
-        EarthquakeAsyncTask earthquakeAsyncTask = new EarthquakeAsyncTask(this);
-        earthquakeAsyncTask.execute(REQUEST_URL);
+        // getSupportLoaderManager is deprecated as of API 28, but it is part of the tutorial
+        // noinspection deprecation
+        getSupportLoaderManager().initLoader(LOADER_ID, null, this);
 
         // set clickListener on ListView Item to start intent to open web page with particular url
         earthquakeListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -74,33 +81,19 @@ public class EarthquakeActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * AsyncTask to perform a network request on a background thread and update the UI.
-     */
-    private static class EarthquakeAsyncTask extends AsyncTask<String, Void, List<Earthquake>> {
-        // weak reference to work with activity context in static class
-        private WeakReference<EarthquakeActivity> mActivityWeakReference;
+    @NonNull
+    @Override
+    public Loader<List<Earthquake>> onCreateLoader(int i, @Nullable Bundle bundle) {
+        return new EarthquakeLoader(this, REQUEST_URL);
+    }
 
-        EarthquakeAsyncTask(EarthquakeActivity context) {
-            mActivityWeakReference = new WeakReference<>(context);
-        }
+    @Override
+    public void onLoadFinished(@NonNull Loader<List<Earthquake>> loader, List<Earthquake> earthquakes) {
+        updateUI(earthquakes);
+    }
 
-        @Override
-        protected List<Earthquake> doInBackground(String... url) {
-            if (url == null) return null;
-
-            // Query and return a list of earthquake occurrences.
-            return QueryUtils.fetchEarthquakesData(REQUEST_URL);
-        }
-
-        @Override
-        protected void onPostExecute(List<Earthquake> earthquakes) {
-            if (earthquakes == null) return;
-
-            EarthquakeActivity activity = mActivityWeakReference.get();
-            if (activity == null || activity.isFinishing()) return;
-
-            activity.updateUI(earthquakes);
-        }
+    @Override
+    public void onLoaderReset(@NonNull Loader<List<Earthquake>> loader) {
+        mEarthquakeAdapter.clear();
     }
 }
