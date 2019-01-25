@@ -24,6 +24,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,7 +49,7 @@ public class EarthquakeActivity extends AppCompatActivity {
 
         // create an AsyncTask to perform network request to given URL on background thread and
         // update UI on the main thread.
-        EarthquakeAsyncTask earthquakeAsyncTask = new EarthquakeAsyncTask();
+        EarthquakeAsyncTask earthquakeAsyncTask = new EarthquakeAsyncTask(this);
         earthquakeAsyncTask.execute(REQUEST_URL);
 
         // set clickListener on ListView Item to start intent to open web page with particular url
@@ -76,7 +77,13 @@ public class EarthquakeActivity extends AppCompatActivity {
     /**
      * AsyncTask to perform a network request on a background thread and update the UI.
      */
-    private class EarthquakeAsyncTask extends AsyncTask<String, Void, List<Earthquake>> {
+    private static class EarthquakeAsyncTask extends AsyncTask<String, Void, List<Earthquake>> {
+        // weak reference to work with activity context in static class
+        private WeakReference<EarthquakeActivity> mActivityWeakReference;
+
+        EarthquakeAsyncTask(EarthquakeActivity context) {
+            mActivityWeakReference = new WeakReference<>(context);
+        }
 
         @Override
         protected List<Earthquake> doInBackground(String... url) {
@@ -90,7 +97,10 @@ public class EarthquakeActivity extends AppCompatActivity {
         protected void onPostExecute(List<Earthquake> earthquakes) {
             if (earthquakes == null) return;
 
-            updateUI(earthquakes);
+            EarthquakeActivity activity = mActivityWeakReference.get();
+            if (activity == null || activity.isFinishing()) return;
+
+            activity.updateUI(earthquakes);
         }
     }
 }
