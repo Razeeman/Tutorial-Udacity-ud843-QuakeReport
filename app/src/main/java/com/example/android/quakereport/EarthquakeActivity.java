@@ -26,6 +26,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,8 +44,9 @@ public class EarthquakeActivity extends AppCompatActivity
     // unique loader id
     private static final int LOADER_ID = 0;
 
-    // reference to adapter to avoid several calls to findViewById
+    // references to avoid several calls to findViewById
     private EarthquakeAdapter mEarthquakeAdapter;
+    private TextView mEmptyListTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +56,9 @@ public class EarthquakeActivity extends AppCompatActivity
         ListView earthquakeListView = findViewById(R.id.list);
         mEarthquakeAdapter = new EarthquakeAdapter(this, new ArrayList<Earthquake>());
         earthquakeListView.setAdapter(mEarthquakeAdapter);
+
+        mEmptyListTextView = findViewById(R.id.empty_list);
+        earthquakeListView.setEmptyView(mEmptyListTextView);
 
         // getSupportLoaderManager is deprecated as of API 28, but it is part of the tutorial
         // noinspection deprecation
@@ -79,6 +84,8 @@ public class EarthquakeActivity extends AppCompatActivity
             mEarthquakeAdapter.clear();
             mEarthquakeAdapter.addAll(earthquakes);
         }
+
+        mEmptyListTextView.setText(R.string.empty_list_message);
     }
 
     @NonNull

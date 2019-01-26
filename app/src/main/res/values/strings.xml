@@ -15,7 +15,11 @@
 -->
 <resources>
     <string name="app_name">Quake Report</string>
+
     <!-- Default text to show with the earthquake location (i.e. "Near the Pacific-Antarctic Ridge")
     if no specific kilometer distance from the primary location is given -->
     <string name="near_the">Near the</string>
+
+    <!-- Text to show on a list if no earthquakes found -->
+    <string name="empty_list_message">No earthquakes found.</string>
 </resources>
