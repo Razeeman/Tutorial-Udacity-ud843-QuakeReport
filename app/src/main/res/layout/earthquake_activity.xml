@@ -28,6 +28,14 @@
         android:layout_centerInParent="true"
         tools:text="No earthquakes found."/>
 
+    <!-- Loading bar to show than earthquakes are being queried -->
+    <ProgressBar
+        android:id="@+id/loading_spinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        style="@style/Widget.AppCompat.ProgressBar"/>
+
     <ListView
         android:id="@+id/list"
         android:orientation="vertical"

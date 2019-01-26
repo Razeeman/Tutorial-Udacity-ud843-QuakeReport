@@ -26,6 +26,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -47,6 +48,7 @@ public class EarthquakeActivity extends AppCompatActivity
     // references to avoid several calls to findViewById
     private EarthquakeAdapter mEarthquakeAdapter;
     private TextView mEmptyListTextView;
+    private ProgressBar mProgressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +61,8 @@ public class EarthquakeActivity extends AppCompatActivity
 
         mEmptyListTextView = findViewById(R.id.empty_list);
         earthquakeListView.setEmptyView(mEmptyListTextView);
+
+        mProgressBar = findViewById(R.id.loading_spinner);
 
         // getSupportLoaderManager is deprecated as of API 28, but it is part of the tutorial
         // noinspection deprecation
@@ -84,8 +88,6 @@ public class EarthquakeActivity extends AppCompatActivity
             mEarthquakeAdapter.clear();
             mEarthquakeAdapter.addAll(earthquakes);
         }
-
-        mEmptyListTextView.setText(R.string.empty_list_message);
     }
 
     @NonNull
@@ -96,7 +98,14 @@ public class EarthquakeActivity extends AppCompatActivity
 
     @Override
     public void onLoadFinished(@NonNull Loader<List<Earthquake>> loader, List<Earthquake> earthquakes) {
+        // update view with new earthquakes
         updateUI(earthquakes);
+
+        // set text for empty list
+        mEmptyListTextView.setText(R.string.empty_list_message);
+
+        // hide loading bar
+        mProgressBar.setVisibility(View.GONE);
     }
 
     @Override
