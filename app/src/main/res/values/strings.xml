@@ -31,4 +31,9 @@
 
     <!-- Settings activity title -->
     <string name="settings_title">Earthquake Settings</string>
+    
+    <!-- Strings for minimum magnitude setting -->
+    <string name="settings_min_magnitude_label">Minimum Magnitude</string>
+    <string name="settings_min_magnitude_key" translatable="false">min_magnitude</string>
+    <string name="settings_min_magnitude_default" translatable="false">6</string>
 </resources>
