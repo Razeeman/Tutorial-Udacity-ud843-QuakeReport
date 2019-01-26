@@ -21,5 +21,8 @@
     <string name="near_the">Near the</string>
 
     <!-- Text to show on a list if no earthquakes found -->
-    <string name="empty_list_message">No earthquakes found.</string>
+    <string name="no_earthquakes">No earthquakes found.</string>
+
+    <!-- Text to show on a list if no internet connection -->
+    <string name="no_internet">No internet connection.</string>
 </resources>

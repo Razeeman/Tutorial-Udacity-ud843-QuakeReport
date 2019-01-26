@@ -16,6 +16,8 @@
 package com.example.android.quakereport;
 
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -31,6 +33,8 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.view.View.GONE;
 
 public class EarthquakeActivity extends AppCompatActivity
         implements LoaderCallbacks<List<Earthquake>> {
@@ -64,20 +68,34 @@ public class EarthquakeActivity extends AppCompatActivity
 
         mProgressBar = findViewById(R.id.loading_spinner);
 
-        // getSupportLoaderManager is deprecated as of API 28, but it is part of the tutorial
-        // noinspection deprecation
-        getSupportLoaderManager().initLoader(LOADER_ID, null, this);
+        // Check internet connection
+        ConnectivityManager cm = (ConnectivityManager) this.getSystemService(CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
 
-        // set clickListener on ListView Item to start intent to open web page with particular url
-        earthquakeListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Earthquake earthquake = mEarthquakeAdapter.getItem(position);
-                Uri uri = Uri.parse(earthquake.getUrl());
-                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-                startActivity(intent);
-            }
-        });
+        // if there is a network connection - query data
+        if (isConnected) {
+            // getSupportLoaderManager is deprecated as of API 28, but it is part of the tutorial
+            // noinspection deprecation
+            getSupportLoaderManager().initLoader(LOADER_ID, null, this);
+
+            // set clickListener on ListView Item to start intent to open web page with particular url
+            earthquakeListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    Earthquake earthquake = mEarthquakeAdapter.getItem(position);
+                    Uri uri = Uri.parse(earthquake.getUrl());
+                    Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                    startActivity(intent);
+                }
+            });
+        } else {
+            // if there is no connection show a message
+            // set text for empty list
+            mEmptyListTextView.setText(R.string.no_internet);
+            // hide loading bar
+            mProgressBar.setVisibility(GONE);
+        }
     }
 
     /**
@@ -102,10 +120,10 @@ public class EarthquakeActivity extends AppCompatActivity
         updateUI(earthquakes);
 
         // set text for empty list
-        mEmptyListTextView.setText(R.string.empty_list_message);
+        mEmptyListTextView.setText(R.string.no_earthquakes);
 
         // hide loading bar
-        mProgressBar.setVisibility(View.GONE);
+        mProgressBar.setVisibility(GONE);
     }
 
     @Override
